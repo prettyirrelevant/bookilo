@@ -1,10 +1,8 @@
-from secrets import token_hex
-
 import requests
 from bs4 import BeautifulSoup
 
 Z_LIB = "https://b-ok.africa"
-PDF_DRIVE = "https://www.pdfdrive.com/"
+PDF_DRIVE = "https://www.pdfdrive.com"
 
 
 def scrape_zlib(query):
@@ -39,3 +37,25 @@ def scrape_zlib(query):
         response.append(_)
 
     return response
+
+
+def scrape_pdfdrive(query):
+    response = []
+    page = requests.get(PDF_DRIVE + "/search", params={"q": query, "searchin": "en"})
+    soup = BeautifulSoup(page.content, "html.parser")
+    results = soup.find_all("div", class_="col-sm")
+    for result in results:
+        _ = {
+            "title": result.find("h2").text,
+            "image": result.find("img", class_="img-zoom file-img")["src"],
+            "pages": result.find("span", class_="fi-pagecount").text,
+            "downloads": result.find("span", class_="fi-hit").text,
+            "size": result.find("span", class_="fi-size hidemobile").text,
+            "url": PDF_DRIVE + result.find("a", class_="ai-search")["href"],
+        }
+        response.append(_)
+
+    return response
+
+
+scrape_pdfdrive("reactjs")
