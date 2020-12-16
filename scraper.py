@@ -26,14 +26,14 @@ def scrape_zlib(query):
                 "div", class_="checkBookDownloaded itemCoverWrapper"
             ).contents[1]["href"],
         }
-        page = BeautifulSoup(requests.get(_.get("url")).content, "html.parser")
-        download_link = {
-            "dl_link": Z_LIB
-            + page.find("a", class_="btn btn-primary dlButton addDownloadedBook")[
-                "href"
-            ]
-        }
-        _.update(download_link)
+        # page = BeautifulSoup(requests.get(_.get("url")).content, "html.parser")
+        # download_link = {
+        #     "dl_link": Z_LIB
+        #     + page.find("a", class_="btn btn-primary dlButton addDownloadedBook")[
+        #         "href"
+        #     ]
+        # }
+        # _.update(download_link)
         response.append(_)
 
     return response
