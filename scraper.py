@@ -51,4 +51,3 @@ def scrape_zlib(query):
     return response
 
 
-scrape_zlib("abracadabra")
