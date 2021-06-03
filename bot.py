@@ -3,33 +3,35 @@ import os
 import random
 
 from telegram import (
-    Update,
-    ParseMode,
+    CallbackQuery,
     ForceReply,
     InlineKeyboardButton,
     InlineKeyboardMarkup,
-    CallbackQuery,
     InlineQueryResultArticle,
-    InputTextMessageContent,
     InlineQueryResultPhoto,
+    InputTextMessageContent,
+    ParseMode,
+    Update,
 )
 from telegram.ext import (
-    Updater,
     CallbackContext,
-    CommandHandler,
-    MessageHandler,
-    Filters,
     CallbackQueryHandler,
+    CommandHandler,
+    Filters,
     InlineQueryHandler,
+    MessageHandler,
+    Updater,
 )
 
 from scraper import scrape_zlib
 
-updater = Updater(token=os.environ.get("TELEGRAM_TOKEN"), use_context=True)
+TOKEN = os.environ.get("TELEGRAM_TOKEN")
+updater = Updater(token=TOKEN, use_context=True)
 logging.basicConfig(
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s", level=logging.DEBUG
 )
 logger = logging.getLogger(__name__)
+PORT = os.environ.get("PORT")
 WELCOME_TEXT = "Hey *{}*!🙃\n\nEasily source for books 📚 at your comfort 🛀. \n\n🏃‍♂️🏃‍♂️🏃‍♂ Byeee! Start searching"
 BOOK_RESPONSE = "`Title: {}`\n\n`Author(s): {}`\n\n`Size: {}`"
 
@@ -55,9 +57,7 @@ def echo(update: Update, context: CallbackContext):
         reply_markup=InlineKeyboardMarkup(
             [
                 [
-                    InlineKeyboardButton(
-                        "Yes", callback_data="1, {}".format(update.message.text)
-                    ),
+                    InlineKeyboardButton("Yes", callback_data="1, {}".format(update.message.text)),
                     InlineKeyboardButton("No", callback_data="0"),
                 ],
             ]
@@ -86,9 +86,7 @@ def button(update: Update, context: CallbackContext):
                 )
             else:
                 query.edit_message_text(
-                    text="🤗 `Result(s)` `for` *{}*".format(
-                        query.data.split(", ")[-1].strip()
-                    ),
+                    text="🤗 `Result(s)` `for` *{}*".format(query.data.split(", ")[-1].strip()),
                     parse_mode=ParseMode.MARKDOWN,
                 )
                 # add pagination later
@@ -96,9 +94,7 @@ def button(update: Update, context: CallbackContext):
                     context.bot.send_photo(
                         chat_id=update.effective_chat.id,
                         photo=item["image"],
-                        caption=BOOK_RESPONSE.format(
-                            item["title"], item["authors"], item["size"]
-                        ),
+                        caption=BOOK_RESPONSE.format(item["title"], item["authors"], item["size"]),
                         reply_markup=InlineKeyboardMarkup(
                             [[InlineKeyboardButton("More Info", url=item["url"])]]
                         ),
@@ -121,9 +117,7 @@ def inline_search(update: Update, context: CallbackContext):
                     id=str(random.randint(1, 100)),
                     title="error",
                     description="Ooops! An error occurred ☹.️",
-                    input_message_content=InputTextMessageContent(
-                        "Ooops! An error occurred ☹.️"
-                    ),
+                    input_message_content=InputTextMessageContent("Ooops! An error occurred ☹.️"),
                 )
             ]
         )
@@ -150,9 +144,7 @@ def inline_search(update: Update, context: CallbackContext):
                         str(index),
                         photo_url=item["image"],
                         thumb_url=item["image"],
-                        caption=BOOK_RESPONSE.format(
-                            item["title"], item["authors"], item["size"]
-                        ),
+                        caption=BOOK_RESPONSE.format(item["title"], item["authors"], item["size"]),
                         parse_mode=ParseMode.MARKDOWN,
                         reply_markup=InlineKeyboardMarkup(
                             [[InlineKeyboardButton("More Info", url=item["url"])]]
@@ -173,11 +165,7 @@ def contact(update: Update, context: CallbackContext):
         "Reach me on:",
         reply_markup=InlineKeyboardMarkup(
             [
-                [
-                    InlineKeyboardButton(
-                        "Twitter", url="https://twitter.com/_peratzatha"
-                    )
-                ],
+                [InlineKeyboardButton("Twitter", url="https://twitter.com/_peratzatha")],
             ]
         ),
     )
@@ -198,5 +186,6 @@ updater.dispatcher.add_handler(MessageHandler(Filters.command, unknown))
 updater.dispatcher.add_error_handler(error)
 
 if __name__ == "__main__":
-    updater.start_polling()
+    updater.start_webhook(listen="0.0.0.0", port=PORT, url_path=TOKEN)
+    updater.bot.setWebhook(f"https://bookilo.herokuapp.com/{TOKEN}")
     updater.idle()
