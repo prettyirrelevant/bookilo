@@ -20,6 +20,8 @@ eg-https://github.com/Perpetual-Incantation/sunflower-dash.git
 git add.
 git commit -m 'Commit message'
 eg- Added a new file in repo #prcode(commit message)
+git push origin branch-name
+eg- git push origin main
 ```
 <h2>After <b>adding, commiting and pushing</b> your code. Make a <b>pull request</b>.</h2>
 
